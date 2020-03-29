@@ -37,18 +37,19 @@ def main():
 
 
     """
-    cap = opencv.VideoCapture(0)
-
     # TODO: modify the size of the history to change the model size to make it more or less sensitive to change
     background_subtractor = opencv.createBackgroundSubtractorKNN(history=5000)
     was_previous_frame_interesting = None
     list_of_interesting_frames = []
 
+    cap = opencv.VideoCapture(0)
     while True:
         ret, capture = cap.read()
 
         if capture is None:
             break
+
+        frames_width, frames_height, _ = capture.shape
 
         # Subtract the capture from the background
         frame = background_subtractor.apply(capture)
@@ -87,7 +88,8 @@ def main():
         was_previous_frame_interesting = is_current_frame_interesting
 
         # show the image
-        opencv.imshow('image', frame)
+        opencv.imshow('motion detector', frame)
+        opencv.imshow('original', capture)
 
         if opencv.waitKey(1) & 0xFF == ord('q'):
             break
@@ -138,7 +140,11 @@ def contains_various_black_pixels(frame):
     True if the frame contains a threshold of black pixels, otherwise False
     """
     n_black_pixels = np.sum(frame == 0)
-    return n_black_pixels > 1000
+    width, height = frame.shape
+
+    # The threshold of black pixels is 10% of the frame
+    threshold = ((width * height) / 100) * 10
+    return n_black_pixels >= threshold
 
 
 def get_current_date_time():
