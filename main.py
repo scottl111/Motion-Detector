@@ -5,8 +5,7 @@ import os
 
 
 def main():
-    """Entry point of the application.
-
+    """
     Uses a live video feed to detect motion and write the frames that contain motion to disk. The application of this
     is to only write the frames that show motion to conserve space on a limited resource disk.
 
@@ -116,8 +115,9 @@ def write_frames_as_video(list_of_frames):
     # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
     full_path = 'C:\\security_cam\\video_' + str(date_time) + ".avi"
 
-    # TODO: how to get the video dimensions size? And the FPS for that matter...?
-    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'XVID'), 30, (640, 480), True)
+    # Get the frame's width and height
+    width, height, _ = list_of_frames[0].shape
+    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'XVID'), 30, (width, height), True)
 
     # write all of the frames out to the video file
     for frame_to_write in list_of_frames:
@@ -139,11 +139,12 @@ def contains_various_black_pixels(frame):
     -------
     True if the frame contains a threshold of black pixels, otherwise False
     """
-    n_black_pixels = np.sum(frame == 0)
-    width, height = frame.shape
-
     # The threshold of black pixels is 10% of the frame
+    width, height = frame.shape
     threshold = ((width * height) / 100) * 10
+
+    # Sum the number of black pixels
+    n_black_pixels = np.sum(frame == 0)
     return n_black_pixels >= threshold
 
 
@@ -160,4 +161,6 @@ def get_current_date_time():
 
 
 if __name__ == '__main__':
+    """Entry point of the application.
+    """
     main()
