@@ -37,7 +37,7 @@ def main():
 
     """
     # TODO: modify the size of the history to change the model size to make it more or less sensitive to change
-    background_subtractor = opencv.createBackgroundSubtractorKNN(history=5000)
+    background_subtractor = opencv.createBackgroundSubtractorKNN(history=1500)
     was_previous_frame_interesting = None
     list_of_interesting_frames = []
 
@@ -81,7 +81,7 @@ def main():
                 # have.
                 write_frames_as_video(list_of_interesting_frames)
                 # Once we've written the interesting frames to disk, clear the list ready for the next
-                list_of_interesting_frames.clear()
+                list_of_interesting_frames = []
 
         # keep track of if the frame was interesting or not for the next iteration
         was_previous_frame_interesting = is_current_frame_interesting
@@ -113,7 +113,7 @@ def write_frames_as_video(list_of_frames):
     # get the time and date for the file name
     date_time = get_current_date_time()
     # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
-    full_path = 'C:\\security_cam\\video_' + str(date_time) + ".avi"
+    full_path = '/home/pi/security_footage/video_' + str(date_time) + ".avi"
 
     # Get the frame's width and height
     width, height, _ = list_of_frames[0].shape
