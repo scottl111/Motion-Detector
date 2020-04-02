@@ -37,7 +37,7 @@ def main():
 
     """
     # TODO: modify the size of the history to change the model size to make it more or less sensitive to change
-    background_subtractor = opencv.createBackgroundSubtractorKNN(history=1500)
+    background_subtractor = opencv.createBackgroundSubtractorKNN(history=2000)
     was_previous_frame_interesting = None
     list_of_interesting_frames = []
 
@@ -113,11 +113,12 @@ def write_frames_as_video(list_of_frames):
     # get the time and date for the file name
     date_time = get_current_date_time()
     # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
-    full_path = '/home/pi/security_footage/video_' + str(date_time) + ".avi"
+    full_path = '/home/pi/security_footage/video_' + str(date_time) + '.mkv'
 
     # Get the frame's width and height
-    width, height, _ = list_of_frames[0].shape
-    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'XVID'), 30, (width, height), True)
+    height, width, _ = list_of_frames[0].shape
+    print('width: ' + str(width) + ' height: ' + str(height))
+    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'X264'), 6, (width, height))
 
     # write all of the frames out to the video file
     for frame_to_write in list_of_frames:
@@ -142,6 +143,7 @@ def contains_various_black_pixels(frame):
     # The threshold of black pixels is 10% of the frame
     width, height = frame.shape
     threshold = ((width * height) / 100) * 10
+    threshold = 1000
 
     # Sum the number of black pixels
     n_black_pixels = np.sum(frame == 0)
