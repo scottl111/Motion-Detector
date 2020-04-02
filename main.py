@@ -1,10 +1,12 @@
 import cv2 as opencv
 import numpy as np
 from datetime import datetime
+import platform as sys
 import os
+import json
 
 
-def main():
+def main(config_for_detection):
     """
     Uses a live video feed to detect motion and write the frames that contain motion to disk. The application of this
     is to only write the frames that show motion to conserve space on a limited resource disk.
@@ -79,7 +81,7 @@ def main():
             else:
                 # We've lost movement in the current frame but we do have in previous frames so write the frames we do
                 # have.
-                write_frames_as_video(list_of_interesting_frames)
+                write_frames_as_video(list_of_interesting_frames, config_for_detection)
                 # Once we've written the interesting frames to disk, clear the list ready for the next
                 list_of_interesting_frames.clear()
 
@@ -97,7 +99,7 @@ def main():
     opencv.destroyAllWindows()
 
 
-def write_frames_as_video(list_of_frames):
+def write_frames_as_video(list_of_frames, config):
     """Writes a list of frames to the disk as a video if the number of frames are more than 20
 
     Parameters
@@ -113,10 +115,14 @@ def write_frames_as_video(list_of_frames):
     # get the time and date for the file name
     date_time = get_current_date_time()
     # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
-    full_path = 'C:\\security_cam\\video_' + str(date_time) + ".avi"
+
+    path = config["video_path"]
+    output_video_type = config["video_format"]
+    full_path = path + '\\video_' + str(date_time) + '.' + output_video_type
 
     # Get the frame's width and height
-    width, height, _ = list_of_frames[0].shape
+    height, width, _ = list_of_frames[0].shape
+    # TODO make the 'XVID' something passed in as part of the config XVID is for AVi files for Windows
     out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'XVID'), 30, (width, height), True)
 
     # write all of the frames out to the video file
@@ -155,7 +161,6 @@ def get_current_date_time():
     -------
     the date and time in the format DD-MM-YYY_HH-MM-SS
     """
-
     now = datetime.now()
     return now.strftime("%d-%m-%Y_%H-%M-%S")
 
@@ -163,4 +168,16 @@ def get_current_date_time():
 if __name__ == '__main__':
     """Entry point of the application.
     """
-    main()
+    config = {}
+    if sys.system() is "Windows":
+        config = {
+                    'video_path': 'C:\\security_cam\\',
+                    'video_format': 'avi'
+                }
+    else:
+        config = {
+                    'video_path': '~/home/pi/security_cam/',
+                    'video_format': 'mkv'
+                }
+
+    main(config)
