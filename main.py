@@ -183,7 +183,7 @@ if __name__ == '__main__':
         )
     else:
         config = dict(
-            video_path='~/home/pi/security_cam/',
+            video_path='/home/pi/security_cam/',
             video_format='mkv',
             frames_per_second=6
         )
