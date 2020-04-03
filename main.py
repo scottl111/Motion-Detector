@@ -3,7 +3,9 @@ import numpy as np
 from datetime import datetime
 import platform as sys
 import os
-import json
+
+# A look-up for the file formats to the opencv video encoding strings
+video_format_encoder_map = dict(avi='XVID', mkv='X264')
 
 
 def main(config_for_detection):
@@ -35,7 +37,6 @@ def main(config_for_detection):
     ./ The application does not scale well. The threshold of 15% black pixels to be indicative of movement was an
        arbitrary value. 
     ./ Many other hardcoded values that are to be parameterised or determined at run time preferably.
-
 
     """
     # TODO: modify the size of the history to change the model size to make it more or less sensitive to change
@@ -88,7 +89,7 @@ def main(config_for_detection):
         # keep track of if the frame was interesting or not for the next iteration
         was_previous_frame_interesting = is_current_frame_interesting
 
-        # show the image
+        # show the images
         opencv.imshow('motion detector', frame)
         opencv.imshow('original', capture)
 
@@ -114,16 +115,19 @@ def write_frames_as_video(list_of_frames, config):
 
     # get the time and date for the file name
     date_time = get_current_date_time()
-    # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
 
-    path = config["video_path"]
-    output_video_type = config["video_format"]
-    full_path = path + '\\video_' + str(date_time) + '.' + output_video_type
+    # TODO: This path is to become parametrised. Also create a folder for video capture on a day to day basis.
+    video_format = config["video_format"]
+    full_path = config["video_path"] + 'video_' + str(date_time) + '.' + video_format
 
     # Get the frame's width and height
     height, width, _ = list_of_frames[0].shape
-    # TODO make the 'XVID' something passed in as part of the config XVID is for AVi files for Windows
-    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*'XVID'), 30, (width, height), True)
+
+    # Extract some details from the config for the opencv encoding and the fps
+    opencv_video_encoding = video_format_encoder_map[video_format]
+    fps = int(config['frames_per_second'])
+
+    out = opencv.VideoWriter(full_path, opencv.VideoWriter_fourcc(*opencv_video_encoding), fps, (width, height), True)
 
     # write all of the frames out to the video file
     for frame_to_write in list_of_frames:
@@ -168,16 +172,20 @@ def get_current_date_time():
 if __name__ == '__main__':
     """Entry point of the application.
     """
+
+    # TODO These will become command line parameters
     config = {}
     if sys.system() is "Windows":
-        config = {
-                    'video_path': 'C:\\security_cam\\',
-                    'video_format': 'avi'
-                }
+        config = dict(
+            video_path='C:\\security_cam\\',
+            video_format='avi',
+            frames_per_second=30
+        )
     else:
-        config = {
-                    'video_path': '~/home/pi/security_cam/',
-                    'video_format': 'mkv'
-                }
+        config = dict(
+            video_path='~/home/pi/security_cam/',
+            video_format='mkv',
+            frames_per_second=6
+        )
 
     main(config)
