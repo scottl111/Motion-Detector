@@ -84,7 +84,7 @@ def main(config_for_detection):
                 # have.
                 write_frames_as_video(list_of_interesting_frames, config_for_detection)
                 # Once we've written the interesting frames to disk, clear the list ready for the next
-                list_of_interesting_frames.clear()
+                list_of_interesting_frames = []
 
         # keep track of if the frame was interesting or not for the next iteration
         was_previous_frame_interesting = is_current_frame_interesting
