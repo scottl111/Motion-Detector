@@ -34,9 +34,11 @@ def main(config_for_detection):
        frames it has already generated will be written out. It will record once again when the motion starts again but
        during experiments a car attempting to reverse park stopped long enough for the background subtraction model to
        incorporate the car which caused numerous videos being written.
-    ./ The application does not scale well. The threshold of 15% black pixels to be indicative of movement was an
+    ./ The application does not scale well. The threshold of black pixels to be indicative of movement was an
        arbitrary value. 
     ./ Many other hardcoded values that are to be parameterised or determined at run time preferably.
+    ./ Sunshine, clouds and shadows are a problem. When the sunshine is strong and shadows are quick to be shown the
+       detector thinks that it is movement when it's not. Same with shadows. Some brightness normalisation is required.
 
     """
     # TODO: modify the size of the history to change the model size to make it more or less sensitive to change
